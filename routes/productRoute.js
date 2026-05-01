@@ -2,17 +2,33 @@ const express = require("express");
 const router = express.Router();
 
 const productController = require("../controllers/productController");
+const { verifyToken, authorizeRoles } = require("../middleware/roleMiddleware");
 
-// GET all products
-router.get("/", productController.getProducts);
+// Protect all routes
+router.use(verifyToken);
 
-// POST create product
-router.post("/", productController.createProduct);
+// Create product (admin only)
+router.post(
+  "/createProduct",
+  authorizeRoles("admin"),
+  productController.createProduct
+);
 
-// PUT update product
-router.put("/:id", productController.updateProduct);
+// Get all products (any logged-in user)
+router.get("/getProduct", productController.getProducts);
 
-// DELETE product
-router.delete("/:id", productController.deleteProduct);
+// Update product
+router.put(
+  "/updateProduct/:id",
+  authorizeRoles("admin"),
+  productController.updateProduct
+);
+
+// Delete product
+router.delete(
+  "/deleteProduct/:id",
+  authorizeRoles("admin"),
+  productController.deleteProduct
+);
 
 module.exports = router;
